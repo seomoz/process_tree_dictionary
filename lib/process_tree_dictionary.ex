@@ -16,8 +16,7 @@ defmodule ProcessTreeDictionary do
   > Every process is a member of some process group and all groups have a
   > group leader. All I/O from the group is channeled to the group leader.
   > When a new process is spawned, it gets the same group leader as the
-  > spawning process. Initially, at system start-up, init is both its own
-  > group leader and the group leader of all processes.
+  > spawning process.
 
   Since every new process inherits the group leader from its parent, a process
   can start a `ProcessTreeDictionary` in place of its existing group leader, and
@@ -37,7 +36,7 @@ defmodule ProcessTreeDictionary do
   be a part of the process tree, because OTP manages application starts for you.
   If you need to access the `ProcessTreeDictionary` from the started processes,
   you'll need to start the supervisor of the application yourself. For more info,
-  see the [Erlang docs](http://erlang.org/doc/apps/kernel/application.html#start0).
+  see the [Erlang docs](http://erlang.org/doc/apps/kernel/application.html#start-1).
   """
 
   @type simple_key :: String.t | atom | integer
@@ -222,7 +221,7 @@ defmodule ProcessTreeDictionary do
 
   defmodule NotStartedError do
     @moduledoc """
-    Raised when attempting to write to a ProcessTreeDictionary
+    Raised when attempting to write to a `ProcessTreeDictionary`
     before it has been started.
     """
 
