@@ -40,15 +40,13 @@ see the [Erlang docs](http://erlang.org/doc/apps/kernel/application.html#start-1
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+Add `process_tree_dictionary` to your list of dependencies in `mix.exs`:
 
-  1. Add `process_tree_dictionary` to your list of dependencies in `mix.exs`:
-
-    ```elixir
-    def deps do
-      [{:process_tree_dictionary, "~> 0.1.0"}]
-    end
-    ```
+```elixir
+def deps do
+  [{:process_tree_dictionary, "~> 0.1.0"}]
+end
+```
 
 ## Example Usage
 
@@ -85,7 +83,7 @@ used for building stateful test fakes in this kind of situation:
      and then use `Agent.get/2` and `Agent.update/2` to manage the
      state. This has the advantage of working correctly for tests
      that use the fake S3 module in a spawned process, but is not
-     compatible with `async: false` tests. Even worse, if you forget
+     compatible with `async: true` tests. Even worse, if you forget
      to change `async: true` to `async: false`, it can lead to
      flickering tests.
 
