@@ -1,5 +1,8 @@
 # ProcessTreeDictionary
 
+[![Master](https://travis-ci.org/seomoz/process_tree_dictionary.svg?branch=master)](https://travis-ci.org/seomoz/process_tree_dictionary)
+[![Hex.pm Version](http://img.shields.io/hexpm/v/process_tree_dictionary.svg?style=flat)](https://hex.pm/packages/process_tree_dictionary)
+
 Implements a dictionary that is scoped to a process tree by replacing
 the group leader with a process that:
 
