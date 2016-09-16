@@ -5,6 +5,11 @@ defmodule ProcessTreeDictionaryTest do
   import ExUnit.CaptureLog
   require Logger
 
+  setup_all do
+    Application.ensure_all_started(:logger)
+    :ok
+  end
+
   test "stores data that can be retrieved later" do
     ProcessTreeDictionary.ensure_started
     ProcessTreeDictionary.put(:foo, 17)
