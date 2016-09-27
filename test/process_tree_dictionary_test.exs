@@ -80,6 +80,17 @@ defmodule ProcessTreeDictionaryTest do
     assert ProcessTreeDictionary.get([:scoped, :a, :b]) == 20
   end
 
+  test "`update!` with a key path does not crash dictionary when the path is not in dictionary" do
+    ProcessTreeDictionary.ensure_started
+    ProcessTreeDictionary.put(:bar, 5)
+
+    assert_raise KeyError, fn ->
+      ProcessTreeDictionary.update!([:foo, :bar, :baz], &(&1 + 2))
+    end
+
+    assert ProcessTreeDictionary.get(:bar) == 5
+  end
+
   test "`ensure_started` is idempotent when called multiple times from the same process" do
     ProcessTreeDictionary.ensure_started
     ProcessTreeDictionary.put(:foo, 17)
