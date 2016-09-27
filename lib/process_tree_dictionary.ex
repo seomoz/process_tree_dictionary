@@ -179,7 +179,7 @@ defmodule ProcessTreeDictionary do
     end
     def handle_call({__MODULE__, :update!, key, fun}, _from, {gl, dict}) do
       key_not_found_ref = make_ref()
-      get_path = to_key_path(key, key_not_found_ref)
+      get_path = to_key_path_with_last_default(key, key_not_found_ref)
       if get_in(dict, get_path) == key_not_found_ref do
         client_fun = fn -> raise KeyError, key: key end
         {:reply, {__MODULE__, :run_fun, client_fun}, {gl, dict}}
