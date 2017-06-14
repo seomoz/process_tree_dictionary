@@ -27,8 +27,32 @@ defmodule ProcessTreeDictionaryTest do
     assert ProcessTreeDictionary.get(:foo) == nil
   end
 
+  test "`get` returns the default value and logs when the group leader process is down" do
+    ProcessTreeDictionary.ensure_started()
+    ProcessTreeDictionary.put(:bar, 17)
+
+    test_pid = self()
+
+    ProcessTreeDictionary.update!(:bar, fn val ->
+      send(test_pid, {:process_tree_dict_pid, self()})
+      val
+    end)
+
+    assert_received {:process_tree_dict_pid, process_tree_dict_pid}
+
+    Process.flag(:trap_exit, true)
+    Process.exit(process_tree_dict_pid, :crash!)
+    assert_receive {:EXIT, ^process_tree_dict_pid, :crash!}
+
+    logged = capture_log fn ->
+      assert ProcessTreeDictionary.get(:bar, :fallback_value) == :fallback_value
+    end
+
+    assert logged =~ "Attempting to use the process tree dictionary process after it has already exited"
+  end
+
   test "`put` raises a clear error when the process tree dictionary has not been started yet" do
-    assert_raise ProcessTreeDictionary.NotStartedError, fn ->
+    assert_raise ProcessTreeDictionary.NotRunningError, fn ->
       assert ProcessTreeDictionary.put(:foo, 17)
     end
   end
@@ -63,7 +87,7 @@ defmodule ProcessTreeDictionaryTest do
   end
 
   test "`update!` raises a clear error when the process tree dictionary has not been started yet" do
-    assert_raise ProcessTreeDictionary.NotStartedError, fn ->
+    assert_raise ProcessTreeDictionary.NotRunningError, fn ->
       assert ProcessTreeDictionary.update!(:foo, &(&1 + 1))
     end
   end
