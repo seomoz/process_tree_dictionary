@@ -196,7 +196,7 @@ defmodule ProcessTreeDictionaryTest do
         unblock(test_pid)
       end
 
-      sync
+      sync()
     end
 
     assert io |> String.strip |> String.split("\n") == [
@@ -218,7 +218,7 @@ defmodule ProcessTreeDictionaryTest do
         unblock(test_pid)
       end
 
-      sync
+      sync()
     end
 
     assert logs =~ "before ensure_started"
