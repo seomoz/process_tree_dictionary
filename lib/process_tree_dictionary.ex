@@ -60,8 +60,16 @@ defmodule ProcessTreeDictionary do
   def ensure_started do
     case get_existing_group_leader() do
       {:already_a_dict, _} -> :ok
+
+      :dict_has_exited ->
+        gl_pid = Process.get(:__process_tree_dictionary_original_group_leader)
+        {:ok, new_pid} = GenServer.start_link(__MODULE__.Server, {gl_pid, %{}})
+        :erlang.group_leader(new_pid, self())
+        :ok
+
       {:not_a_dict, gl_pid} ->
         {:ok, new_pid} = GenServer.start_link(__MODULE__.Server, {gl_pid, %{}})
+        Process.put(:__process_tree_dictionary_original_group_leader, gl_pid)
         :erlang.group_leader(new_pid, self())
         :ok
     end
