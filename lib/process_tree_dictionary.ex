@@ -1,4 +1,6 @@
 defmodule ProcessTreeDictionary do
+  require Logger
+
   @moduledoc """
   Implements a dictionary that is scoped to a process tree by replacing
   the group leader with a process that:
@@ -140,10 +142,17 @@ defmodule ProcessTreeDictionary do
   end
 
   defp call_server(message_name, args,
-    fallback \\ fn -> raise __MODULE__.NotStartedError end
+    fallback \\ fn -> raise __MODULE__.NotRunningError end
   ) do
     case get_existing_group_leader() do
+      :dict_has_exited ->
+        Logger.warn "Attempting to use the process tree dictionary process after it " <>
+                    "has already exited for message: #{inspect message_name}, #{inspect args}. " <>
+                    "The fallback callback will be used."
+        fallback.()
+
       {:not_a_dict, _} -> fallback.()
+
       {:already_a_dict, gl_pid} ->
         message = [__MODULE__.Server, message_name | args] |> List.to_tuple
         case GenServer.call(gl_pid, message) do
@@ -155,11 +164,15 @@ defmodule ProcessTreeDictionary do
 
   defp get_existing_group_leader do
     group_leader = :erlang.group_leader
-    {:dictionary, dict} = Process.info(group_leader, :dictionary)
 
-    case Keyword.get(dict, :"$initial_call") do
-      {__MODULE__.Server, _fun, _args} -> {:already_a_dict, group_leader}
-      _otherwise -> {:not_a_dict, group_leader}
+    case Process.info(group_leader, :dictionary) do
+      {:dictionary, dict} ->
+        case Keyword.get(dict, :"$initial_call") do
+          {__MODULE__.Server, _fun, _args} -> {:already_a_dict, group_leader}
+          _otherwise -> {:not_a_dict, group_leader}
+        end
+
+      nil -> :dict_has_exited
     end
   end
 
@@ -219,12 +232,12 @@ defmodule ProcessTreeDictionary do
     end
   end
 
-  defmodule NotStartedError do
+  defmodule NotRunningError do
     @moduledoc """
     Raised when attempting to write to a `ProcessTreeDictionary`
-    before it has been started.
+    before it has been started or after it has exited.
     """
 
-    defexception message: "Must start a ProcessTreeDictionary before writing to it"
+    defexception message: "Must start a ProcessTreeDictionary before writing to it (and must still be up)"
   end
 end
