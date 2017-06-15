@@ -31,18 +31,7 @@ defmodule ProcessTreeDictionaryTest do
     ProcessTreeDictionary.ensure_started()
     ProcessTreeDictionary.put(:bar, 17)
 
-    test_pid = self()
-
-    ProcessTreeDictionary.update!(:bar, fn val ->
-      send(test_pid, {:process_tree_dict_pid, self()})
-      val
-    end)
-
-    assert_received {:process_tree_dict_pid, process_tree_dict_pid}
-
-    Process.flag(:trap_exit, true)
-    Process.exit(process_tree_dict_pid, :crash!)
-    assert_receive {:EXIT, ^process_tree_dict_pid, :crash!}
+    stop_process_tree_dictionary(:bar)
 
     logged = capture_log fn ->
       assert ProcessTreeDictionary.get(:bar, :fallback_value) == :fallback_value
@@ -139,6 +128,18 @@ defmodule ProcessTreeDictionaryTest do
     sync()
     assert ProcessTreeDictionary.get(:foo) == 17
     assert ProcessTreeDictionary.get(:bar) == 23
+  end
+
+  test "`ensure_started` starts the dictionary when it has previously exited" do
+    ProcessTreeDictionary.ensure_started
+    ProcessTreeDictionary.put(:foo, 17)
+
+    stop_process_tree_dictionary(:foo)
+    ProcessTreeDictionary.ensure_started
+
+    assert ProcessTreeDictionary.get(:foo, :fallback) == :fallback
+    ProcessTreeDictionary.put(:foo, 17)
+    assert ProcessTreeDictionary.get(:foo, :fallback) == 17
   end
 
   test "isolates its data from other processes which start their own ProcessTreeDictionary" do
@@ -296,6 +297,21 @@ defmodule ProcessTreeDictionaryTest do
 
   def unblock(pid) do
     send(pid, :proceed)
+  end
+
+  defp stop_process_tree_dictionary(key) do
+    test_pid = self()
+
+    ProcessTreeDictionary.update!(key, fn val ->
+      send(test_pid, {:process_tree_dict_pid, self()})
+      val
+    end)
+
+    assert_received {:process_tree_dict_pid, process_tree_dict_pid}
+
+    Process.flag(:trap_exit, true)
+    Process.exit(process_tree_dict_pid, :crash!)
+    assert_receive {:EXIT, ^process_tree_dict_pid, :crash!}
   end
 
   defmodule EchoGenServer do
