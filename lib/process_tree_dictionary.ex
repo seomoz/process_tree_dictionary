@@ -188,7 +188,9 @@ defmodule ProcessTreeDictionary do
     use GenServer
 
     @moduledoc false
-
+    def init(init_arg) do
+      {:ok, init_arg}
+    end
     def handle_call({__MODULE__, :put, key, value}, _from, {gl, dict}) do
       updated = put_in(dict, to_key_path(key), value)
       {:reply, :ok, {gl, updated}}

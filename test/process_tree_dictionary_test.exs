@@ -200,7 +200,7 @@ defmodule ProcessTreeDictionaryTest do
       sync()
     end
 
-    assert io |> String.strip |> String.split("\n") == [
+    assert io |> String.trim |> String.split("\n") == [
       "before ensure_started",
       "after ensure_started",
       "in spawned process",
