@@ -3,13 +3,13 @@ defmodule ProcessTreeDictionary.Mixfile do
 
   def project do
     [app: :process_tree_dictionary,
-     version: "1.0.2",
-     elixir: "~> 1.3",
+     version: "2.0.0",
+     elixir: "~> 1.10",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     aliases: aliases,
-     description: description,
-     package: package,
+     aliases: aliases(),
+     description: description(),
+     package: package(),
      deps: deps()]
   end
 
@@ -20,8 +20,8 @@ defmodule ProcessTreeDictionary.Mixfile do
   defp deps do
     [
       # ex_doc and earmark are necessary to publish docs to hexdocs.pm.
-      {:ex_doc, ">= 0.0.0", only: :dev},
-      {:earmark, ">= 0.0.0", only: :dev},
+      {:ex_doc, ">= 0.24.2", only: :dev},
+      {:earmark, "~> 1.4", only: :dev},
     ]
   end
 
@@ -46,7 +46,7 @@ defmodule ProcessTreeDictionary.Mixfile do
   end
 
   defp tag_version(_args) do
-    version = Keyword.fetch!(project, :version)
+    version = Keyword.fetch!(project(), :version)
     System.cmd("git", ["tag", "-a", "-m", "Version #{version}", "v#{version}"])
     System.cmd("git", ["push", "origin"])
     System.cmd("git", ["push", "origin", "--tags"])
