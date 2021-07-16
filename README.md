@@ -47,7 +47,7 @@ Add `process_tree_dictionary` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:process_tree_dictionary, "~> 1.0.0"}]
+  [{:process_tree_dictionary, "~> 2.0.0"}]
 end
 ```
 

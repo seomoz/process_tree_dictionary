@@ -1,3 +1,6 @@
+### 2.0.0
+Upgrade Elixir from 1.3 to 1.10 so newer repos can use this dependency
+
 ### 1.0.2 / 2017-06-15
 [Full Changelog](https://github.com/seomoz/process_tree_dictionary/compare/v1.0.1...v1.0.2)
 
